@@ -1,73 +1,51 @@
-function openWindow(event) {
- const targetHash = '#/web_notify';
+const urlPage = '/living-worship-app/#/web_notify';
 
-   const promiseChain = clients.matchAll({
-     type: 'window',
-     includeUncontrolled: true
-   }).then((windowClients) => {
-     // Buscar la primera ventana abierta
-     for (const client of windowClients) {
-       const urlWithoutHash = client.url.split('#')[0];
-       const targetURL = `${urlWithoutHash}${targetHash}`;
-       return clients.openWindow(targetURL);
-     }
-
-     // Si no hay ventanas, usa origen del SW como base
-     const fallback = `${self.location.origin}${targetHash}`;
-     return clients.openWindow(fallback);
-   });
-
-   event.waitUntil(promiseChain);
+function cleanUrlBase(url) {
+  if (!url) return '';
+  return url.split('#')[0].replace(/\/$/, '');
 }
 
-function refreshWindow(event) {
-  const promiseChain = clients.matchAll({
-    type: 'window',
-    includeUncontrolled: true
-  }).then((windowClients) => {
-    for (let i = 0; i < windowClients.length; i++) {
-      const client = windowClients[i];
-
-      // En lugar de abrir nueva ventana o enfocar, envía un mensaje al cliente
-      client.postMessage({ action: 'reload' });
-    }
-  });
-
+function openWindow(event) {
+  /**** START notificationOpenWindow ****/
+  const promiseChain = clients.openWindow(urlPage);
   event.waitUntil(promiseChain);
+  /**** END notificationOpenWindow ****/
 }
 
 function focusWindow(event) {
-  const targetHash = '#/web_notify';
+  /**** START notificationFocusWindow ****/
+  /**** START urlToOpen ****/
+  const urlToOpen = new URL(urlPage, self.location.origin).href;
+  /**** END urlToOpen ****/
 
-    const promiseChain = clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    }).then((windowClients) => {
-      let matchingClient = null;
-      let targetURL = null;
+  /**** START clientsMatchAll ****/
+  const promiseChain = clients.matchAll({
+    type: 'window',
+    includeUncontrolled: true
+  })
+  /**** END clientsMatchAll ****/
+  /**** START searchClients ****/
+  .then((windowClients) => {
+    let matchingClient = null;
 
-      for (const client of windowClients) {
-        const urlWithoutHash = client.url.split('#')[0];
-        matchingClient = client;
-        targetURL = `${urlWithoutHash}${targetHash}`; // usa la URL real de la pestaña
-
-        break; // Usamos la primera ventana encontrada (puedes hacer más lógica aquí si necesitas)
+    for (let i = 0; i < windowClients.length; i++) {
+      const windowClient = windowClients[i];
+      if (cleanUrlBase(windowClient.url) === cleanUrlBase(urlToOpen)) {
+        matchingClient = windowClient;
+        break;
       }
+    }
 
-      if (matchingClient) {
-        matchingClient.focus();
-        if ('navigate' in matchingClient && targetURL) {
-          return matchingClient.navigate(targetURL);
-        }
-        return;
-      } else {
-        // Si no hay pestañas abiertas, usa la ubicación del navegador
-        const fallback = `${self.location.origin}${targetHash}`;
-        return clients.openWindow(fallback);
-      }
-    });
+    if (matchingClient) {
+      return matchingClient.focus();
+    } else {
+      return clients.openWindow(urlToOpen);
+    }
+  });
+  /**** END searchClients ****/
 
-    event.waitUntil(promiseChain);
+  event.waitUntil(promiseChain);
+  /**** END notificationFocusWindow ****/
 }
 
 function dataNotification(event) {
