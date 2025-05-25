@@ -1,5 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js');
+importScripts('service-worker.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyA0O-2hYjIBpgD_ud7qvOgiJ_dcRdC1XjU",
@@ -16,29 +17,16 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Mensaje recibido en background:', payload);
-  const notificationTitle = payload.notification.title;
-  const notificationBody = payload.notification?.body || '';
-   const notificationIcon = '/icons/Icon-192.png';
-  onMessageIconClick(notificationTitle, notificationBody, notificationIcon);
-});
 
-async function onMessageIconClick(title, body, icon) {
-        const reg = await getSW();
-        /**** START titleAndBodySimple ****/
-        //const title = "Simple Title";
-        const options = {
-          body: body,//"Simple piece of body text.\nSecond line of body text 👍",
-          icon: icon,//"/demos/notification-examples/images/icon-512x512.png"
-          data: {
-            url: '/' // Ruta donde quieres abrir la app (ej. '/', '/notificaciones')
-          },
-        };
-        reg.showNotification(title, options);
-        /**** END titleAndBodySimple ****/
+  const notificationTitle = payload.notification?.title || 'Notificación';
+  const notificationOptions = {
+    body: payload.notification?.body || '',
+    icon: '/icons/Icon-192.png',
+    data: {
+          url: '/notify' // Ruta donde quieres abrir la app (ej. '/', '/notificaciones')
+        }
       }
+  };
 
- function getSW() {
-       return navigator.serviceWorker.getRegistration(
-         "service-worker.js"
-       );
-  }
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
