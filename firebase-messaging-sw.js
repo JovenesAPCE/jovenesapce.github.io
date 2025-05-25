@@ -25,6 +25,7 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationOptions = {
     body: payload.notification?.body || '',
     icon: '/icons/Icon-192.png',
+    tag: "focus-window",
     data: {
           url: '/notify' // Ruta donde quieres abrir la app (ej. '/', '/notificaciones')
         }
