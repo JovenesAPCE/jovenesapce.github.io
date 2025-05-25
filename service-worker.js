@@ -1,5 +1,6 @@
 const examplePageURL = '/living-worship-app';
 
+
 function openWindow(event) {
   /**** START notificationOpenWindow ****/
   const promiseChain = clients.openWindow(examplePageURL);
