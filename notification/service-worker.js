@@ -38,9 +38,7 @@ function focusWindow(event) {
 
     if (matchingClient) {
        matchingClient.focus();
-       if ('navigate' in matchingClient && targetURL) {
-          return matchingClient.navigate(targetURL);
-       }
+       matchingClient.postMessage({ action: 'navigateTo', url: urlPage });
        return;
     } else {
       return clients.openWindow(urlToOpen);
