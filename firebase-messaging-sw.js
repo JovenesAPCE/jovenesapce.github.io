@@ -19,12 +19,13 @@ messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Mensaje recibido en background:', payload);
 
      // 🔁 Cerrar notificaciones que no tienen ícono
-      const notifications = await self.registration.getNotifications();
-      notifications.forEach(n => {
-        if (!n.icon) {
-          n.close();
-        }
-      });
+   self.registration.getNotifications().then(notifications => {
+     notifications.forEach(n => {
+       if (!n.icon) {
+         n.close();
+       }
+     });
+   });
 
   const notificationTitle = payload.notification?.title || 'Notificación';
   const notificationOptions = {
