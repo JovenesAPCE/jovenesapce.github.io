@@ -25,8 +25,7 @@ messaging.onBackgroundMessage(function(payload) {
     data: {
           url: '/notify' // Ruta donde quieres abrir la app (ej. '/', '/notificaciones')
         }
-      },
-  };
+    };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
