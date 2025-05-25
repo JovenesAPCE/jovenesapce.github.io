@@ -19,13 +19,7 @@ messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Mensaje recibido en background:', payload);
 
      // 🔁 Cerrar notificaciones que no tienen ícono
-   self.registration.getNotifications().then(notifications => {
-     notifications.forEach(n => {
-       if (!n.icon) {
-         n.close();
-       }
-     });
-   });
+   closeNotificationsWithoutIconAfterDelay();
 
   const notificationTitle = payload.notification?.title || 'Notificación';
   const notificationOptions = {
@@ -38,3 +32,14 @@ messaging.onBackgroundMessage(function(payload) {
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+// Función que espera 2 segundos y cierra notificaciones sin ícono
+async function closeNotificationsWithoutIconAfterDelay() {
+  await new Promise(resolve => setTimeout(resolve, 2000)); // espera 2 segundos
+  const notifications = await self.registration.getNotifications();
+  notifications.forEach(n => {
+    if (!n.icon) {
+      n.close();
+    }
+  });
+}
