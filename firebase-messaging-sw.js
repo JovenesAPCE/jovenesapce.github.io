@@ -1,5 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js');
+importScripts('service-worker.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyA0O-2hYjIBpgD_ud7qvOgiJ_dcRdC1XjU",
@@ -16,12 +17,13 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Mensaje recibido en background:', payload);
-
-  const notificationTitle = payload.notification?.title || 'Notificación';
-  const notificationOptions = {
+  const options = {
     body: payload.notification?.body || '',
-    icon: '/icons/Icon-192.png',
-  };
+        icon: '/icons/Icon-192.png',
+        data: {
+           url: '/' // Ruta donde quieres abrir la app (ej. '/', '/notificaciones')
+        },
+   };
+   showNotification(title, options);
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
 });
