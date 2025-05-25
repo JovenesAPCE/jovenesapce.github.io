@@ -1,11 +1,23 @@
 function openWindow(event) {
- // Obtener dinámicamente el scope base sin el último slash
- const baseScope = self.registration.scope.replace(/\/$/, '');
- const targetURL = `${baseScope}/#/web_notify`;
-  /**** START notificationOpenWindow ****/
-  const promiseChain = clients.openWindow(targetURL);
-  event.waitUntil(promiseChain);
-  /**** END notificationOpenWindow ****/
+ const targetHash = '#/web_notify';
+
+   const promiseChain = clients.matchAll({
+     type: 'window',
+     includeUncontrolled: true
+   }).then((windowClients) => {
+     // Buscar la primera ventana abierta
+     for (const client of windowClients) {
+       const urlWithoutHash = client.url.split('#')[0];
+       const targetURL = `${urlWithoutHash}${targetHash}`;
+       return clients.openWindow(targetURL);
+     }
+
+     // Si no hay ventanas, usa origen del SW como base
+     const fallback = `${self.location.origin}${targetHash}`;
+     return clients.openWindow(fallback);
+   });
+
+   event.waitUntil(promiseChain);
 }
 
 function refreshWindow(event) {
@@ -25,34 +37,33 @@ function refreshWindow(event) {
 }
 
 function focusWindow(event) {
-  // Obtener dinámicamente el scope base sin el último slash
-    const baseScope = self.registration.scope.replace(/\/$/, '');
-    const targetURL = `${baseScope}/#/web_notify`;
+  const targetHash = '#/web_notify';
 
     const promiseChain = clients.matchAll({
       type: 'window',
       includeUncontrolled: true
     }).then((windowClients) => {
       let matchingClient = null;
+      let targetURL = null;
 
       for (const client of windowClients) {
-        const clientBase = client.url.split('#')[0].replace(/\/$/, '');
-        if (clientBase === baseScope) {
-          matchingClient = client;
-          break;
-        }
+        const urlWithoutHash = client.url.split('#')[0];
+        matchingClient = client;
+        targetURL = `${urlWithoutHash}${targetHash}`; // usa la URL real de la pestaña
+
+        break; // Usamos la primera ventana encontrada (puedes hacer más lógica aquí si necesitas)
       }
 
       if (matchingClient) {
         matchingClient.focus();
-
-        if ('navigate' in matchingClient) {
-          return matchingClient.navigate(targetURL); // Refrescar con el hash
+        if ('navigate' in matchingClient && targetURL) {
+          return matchingClient.navigate(targetURL);
         }
-
         return;
       } else {
-        return clients.openWindow(targetURL); // Abrir nueva pestaña
+        // Si no hay pestañas abiertas, usa la ubicación del navegador
+        const fallback = `${self.location.origin}${targetHash}`;
+        return clients.openWindow(fallback);
       }
     });
 
