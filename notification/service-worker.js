@@ -37,7 +37,11 @@ function focusWindow(event) {
     }
 
     if (matchingClient) {
-      return matchingClient.focus();
+       matchingClient.focus();
+       if ('navigate' in matchingClient && targetURL) {
+          return matchingClient.navigate(targetURL);
+       }
+       return;
     } else {
       return clients.openWindow(urlToOpen);
     }
