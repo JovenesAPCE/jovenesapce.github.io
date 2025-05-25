@@ -1,7 +1,4 @@
-const examplePageURL = (function () {
-  const baseScope = self.registration?.scope || self.location.origin;
-  return baseScope.replace(/\/$/, '') + '/notify';
-})();
+const examplePageURL = '/living-worship-app/notify';
 
 function openWindow(event) {
   /**** START notificationOpenWindow ****/
