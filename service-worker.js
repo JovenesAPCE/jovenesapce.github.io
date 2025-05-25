@@ -1,9 +1,4 @@
-const examplePageURL = '/living-worship-app/notify';
-
-
-
-
-
+const examplePageURL = '/living-worship-app';
 
 function openWindow(event) {
   /**** START notificationOpenWindow ****/
