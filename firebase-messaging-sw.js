@@ -39,6 +39,6 @@ async function onMessageIconClick(title, body, icon) {
 
  function getSW() {
        return navigator.serviceWorker.getRegistration(
-         "/service-worker.js"
+         "service-worker.js"
        );
   }
